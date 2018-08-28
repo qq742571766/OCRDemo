@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.damo.linh.ocrdemo">
-
+    <!--应用联网，发送请求数据至服务器，获得识别结果-->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!--调用相机进行拍照（仅UI部分需要）-->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!--图片裁剪临时存储-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--图片裁剪临时存储-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application

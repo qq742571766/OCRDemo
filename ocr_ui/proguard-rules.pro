@@ -16,3 +16,4 @@
 #   public *;
 #}
 -dontwarn com.baidu.ocr.**
+-keep class com.baidu.ocr.sdk.**{*;}
