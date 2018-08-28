@@ -8,7 +8,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.baidu.ocr.sdk.OCR;
@@ -34,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         OCR.getInstance(this).initAccessTokenWithAkSk(new OnResultListener<AccessToken>() {
             @Override
             public void onResult(AccessToken result) {
-                String token = result.getAccessToken();
                 hasGotToken = true;
             }
 
@@ -44,33 +42,27 @@ public class MainActivity extends AppCompatActivity {
                 alertText("AK，SK方式获取token失败", error.getMessage());
             }
         }, getApplicationContext(), "KgLmVS7vuicGcX8The7eLpVS", "g7jkbcLqxze3qtYKnvjuPfPQZhPGzyuT");
-        findViewById(R.id.tv).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!checkTokenStatus()) {
-                    return;
-                }
-                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-                ).getAbsolutePath());
-                intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
-                        .CONTENT_TYPE_GENERAL);
-                startActivityForResult(intent, 124);
+        findViewById(R.id.tv).setOnClickListener(view -> {
+            if (checkTokenStatus()) {
+                return;
             }
+            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
+            ).getAbsolutePath());
+            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
+                    .CONTENT_TYPE_GENERAL);
+            startActivityForResult(intent, 124);
         });
-        findViewById(R.id.tv1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!checkTokenStatus()) {
-                    return;
-                }
-                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-                ).getAbsolutePath());
-                intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
-                        .CONTENT_TYPE_GENERAL);
-                startActivityForResult(intent, 123);
+        findViewById(R.id.tv1).setOnClickListener(view -> {
+            if (checkTokenStatus()) {
+                return;
             }
+            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
+            ).getAbsolutePath());
+            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
+                    .CONTENT_TYPE_GENERAL);
+            startActivityForResult(intent, 123);
         });
     }
 
@@ -119,15 +111,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static File getSaveFile(Context context) {
-        File file = new File(context.getFilesDir(), "pic.jpg");
-        return file;
+        return new File(context.getFilesDir(), "pic.jpg");
     }
 
     private boolean checkTokenStatus() {
         if (!hasGotToken) {
             Toast.makeText(getApplicationContext(), "token还未成功获取", Toast.LENGTH_LONG).show();
         }
-        return hasGotToken;
+        return !hasGotToken;
     }
 
     private void alertText(final String title, final String message) {
