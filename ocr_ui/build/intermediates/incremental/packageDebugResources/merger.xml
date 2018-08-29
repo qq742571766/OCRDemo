@@ -5,7 +5,6 @@
         <attr format="reference" name="leftDownView"/>
         <attr format="reference" name="rightUpView"/>
     </declare-styleable></file><file path="D:\android\print_new\SourceCode\OCRDemo\ocr_ui\src\main\res\values\colors.xml" qualifiers=""><color name="colorPrimary">#3F51B5</color><color name="colorPrimaryDark">#303F9F</color><color name="colorAccent">#FF4081</color></file><file path="D:\android\print_new\SourceCode\OCRDemo\ocr_ui\src\main\res\values\strings.xml" qualifiers=""><string name="app_name">OCR_UI</string><string name="camera_permission_required">本功能需要相机权限！</string></file><file path="D:\android\print_new\SourceCode\OCRDemo\ocr_ui\src\main\res\values\styles.xml" qualifiers=""><style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
