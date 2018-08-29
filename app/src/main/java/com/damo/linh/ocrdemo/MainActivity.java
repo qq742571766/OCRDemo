@@ -76,17 +76,17 @@ public class MainActivity extends AppCompatActivity {
             param.setImageFile(new File(file.getAbsolutePath()));
             OCR.getInstance(this).recognizeVatInvoice(param, new
                     OnResultListener<OcrResponseResult>() {
-                @Override
-                public void onResult(OcrResponseResult result) {
-                    alertText("", result.getJsonRes());
-                }
+                        @Override
+                        public void onResult(OcrResponseResult result) {
+                            alertText("", result.getJsonRes());
+                        }
 
-                @Override
-                public void onError(OCRError error) {
-                    alertText("", error.toString());
-                    Log.e("TAG", "onError: " + error.toString());
-                }
-            });
+                        @Override
+                        public void onError(OCRError error) {
+                            alertText("", error.toString());
+                            Log.e("TAG", "onError: " + error.toString());
+                        }
+                    });
         }
         // 识别成功回调，通用票据识别
         if (requestCode == 123 && resultCode == Activity.RESULT_OK) {

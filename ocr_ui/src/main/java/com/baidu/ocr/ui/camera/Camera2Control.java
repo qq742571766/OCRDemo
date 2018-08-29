@@ -53,12 +53,10 @@ import android.view.WindowManager;
 public class Camera2Control implements ICameraControl {
     @Override
     public void setDetectCallback(OnDetectPictureCallback callback) {
-        // TODO 暂时只用camera
     }
 
     @Override
     public AtomicBoolean getAbortingScan() {
-        // TODO 暂时只用camera
         return null;
     }
 
@@ -301,7 +299,6 @@ public class Camera2Control implements ICameraControl {
                         @Override
                         public void onConfigureFailed(
                                 @NonNull CameraCaptureSession cameraCaptureSession) {
-                            // TODO
                         }
                     }, null
             );
