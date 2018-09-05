@@ -1,11 +1,8 @@
-/*
- * Copyright (C) 2017 Baidu, Inc. All Rights Reserved.
- */
 package com.baidu.ocr.ui.crop;
-
 
 import com.baidu.ocr.ui.util.DimensionUtil;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -20,10 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class FrameOverlayView extends View {
-
-    interface OnFrameChangeListener {
-        void onFrameChange(RectF newFrame);
-    }
 
     public Rect getFrameRect() {
         Rect rect = new Rect();
@@ -49,34 +42,28 @@ public class FrameOverlayView extends View {
         init();
     }
 
-    private GestureDetector.SimpleOnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector.SimpleOnGestureListener onGestureListener = new GestureDetector
+            .SimpleOnGestureListener() {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             translate(distanceX, distanceY);
             return true;
         }
-
     };
-
     private static final int CORNER_LEFT_TOP = 1;
     private static final int CORNER_RIGHT_TOP = 2;
     private static final int CORNER_RIGHT_BOTTOM = 3;
     private static final int CORNER_LEFT_BOTTOM = 4;
-
     private int currentCorner = -1;
     int margin = 20;
     int cornerLength = 100;
     int cornerLineWidth = 6;
-
     private int maskColor = Color.argb(180, 0, 0, 0);
-
     private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint eraser = new Paint(Paint.ANTI_ALIAS_FLAG);
     private GestureDetector gestureDetector;
     private RectF touchRect = new RectF();
     private RectF frameRect = new RectF();
-
-    private OnFrameChangeListener onFrameChangeListener;
 
     {
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -85,10 +72,6 @@ public class FrameOverlayView extends View {
         paint.setStrokeWidth(6);
 
         eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-    }
-
-    public void setOnFrameChangeListener(OnFrameChangeListener onFrameChangeListener) {
-        this.onFrameChangeListener = onFrameChangeListener;
     }
 
     private void init() {
@@ -121,11 +104,8 @@ public class FrameOverlayView extends View {
         shapeType = 1;
     }
 
-
-
     private void translate(float x, float y) {
         if (x > 0) {
-            // moving left;
             if (frameRect.left - x < margin) {
                 x = frameRect.left - margin;
             }
@@ -134,7 +114,6 @@ public class FrameOverlayView extends View {
                 x = frameRect.right - getWidth() + margin;
             }
         }
-
         if (y > 0) {
             if (frameRect.top - y < margin) {
                 y = frameRect.top - margin;
@@ -151,9 +130,7 @@ public class FrameOverlayView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         canvas.drawColor(maskColor);
-
         paint.setStrokeWidth(DimensionUtil.dpToPx(1));
         canvas.drawRect(frameRect, paint);
         canvas.drawRect(frameRect, eraser);
@@ -162,19 +139,12 @@ public class FrameOverlayView extends View {
 
     private void drawCorners(Canvas canvas) {
         paint.setStrokeWidth(cornerLineWidth);
-        // left top
         drawLine(canvas, frameRect.left - cornerLineWidth / 2, frameRect.top, cornerLength, 0);
         drawLine(canvas, frameRect.left, frameRect.top, 0, cornerLength);
-
-        // right top
         drawLine(canvas, frameRect.right + cornerLineWidth / 2, frameRect.top, -cornerLength, 0);
         drawLine(canvas, frameRect.right, frameRect.top, 0, cornerLength);
-
-        // right bottom
         drawLine(canvas, frameRect.right, frameRect.bottom, 0, -cornerLength);
         drawLine(canvas, frameRect.right + cornerLineWidth / 2, frameRect.bottom, -cornerLength, 0);
-
-        // left bottom
         drawLine(canvas, frameRect.left - cornerLineWidth / 2, frameRect.bottom, cornerLength, 0);
         drawLine(canvas, frameRect.left, frameRect.bottom, 0, -cornerLength);
     }
@@ -183,6 +153,7 @@ public class FrameOverlayView extends View {
         canvas.drawLine(x, y, x + dx, y + dy, paint);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean result = handleDown(event);
@@ -206,23 +177,20 @@ public class FrameOverlayView extends View {
                 break;
             case MotionEvent.ACTION_DOWN: {
                 float radius = cornerLength;
-                touchRect.set(event.getX() - radius, event.getY() - radius, event.getX() + radius,
-                        event.getY() + radius);
+                touchRect.set(event.getX() - radius, event.getY() - radius, event.getX() +
+                        radius, event.getY() + radius);
                 if (touchRect.contains(frameRect.left, frameRect.top)) {
                     currentCorner = CORNER_LEFT_TOP;
                     return true;
                 }
-
                 if (touchRect.contains(frameRect.right, frameRect.top)) {
                     currentCorner = CORNER_RIGHT_TOP;
                     return true;
                 }
-
                 if (touchRect.contains(frameRect.right, frameRect.bottom)) {
                     currentCorner = CORNER_RIGHT_BOTTOM;
                     return true;
                 }
-
                 if (touchRect.contains(frameRect.left, frameRect.bottom)) {
                     currentCorner = CORNER_LEFT_BOTTOM;
                     return true;
@@ -272,12 +240,6 @@ public class FrameOverlayView extends View {
 
         frameRect.set(left, top, right, bottom);
         invalidate();
-    }
-
-    private void notifyFrameChange() {
-        if (onFrameChangeListener != null) {
-            onFrameChangeListener.onFrameChange(frameRect);
-        }
     }
 
     private float getMinimumFrameWidth() {

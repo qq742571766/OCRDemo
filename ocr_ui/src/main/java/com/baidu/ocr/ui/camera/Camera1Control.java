@@ -1,6 +1,3 @@
-/*
- * Copyright (C) 2017 Baidu, Inc. All Rights Reserved.
- */
 package com.baidu.ocr.ui.camera;
 
 import java.io.ByteArrayOutputStream;
@@ -24,12 +21,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
 
-/**
- * 5.0以下相机API的封装。
- */
-@SuppressWarnings("deprecation")
 public class Camera1Control implements ICameraControl {
-
     private int displayOrientation = 0;
     private int cameraId = 0;
     private int flashMode;
@@ -37,31 +29,20 @@ public class Camera1Control implements ICameraControl {
     private AtomicBoolean abortingScan = new AtomicBoolean(false);
     private Context context;
     private Camera camera;
-
     private Camera.Parameters parameters;
     private PermissionCallback permissionCallback;
     private Rect previewFrame = new Rect();
-
     private PreviewView previewView;
     private View displayView;
     private int rotation = 0;
     private OnDetectPictureCallback detectCallback;
     private int previewFrameCount = 0;
     private Camera.Size optSize;
-
-    /*
-     * 非扫描模式
-     */
     private final int MODEL_NOSCAN = 0;
-
-    /*
-     * 本地质量控制扫描模式
-     */
     private final int MODEL_SCAN = 1;
-
     private int detectType = MODEL_NOSCAN;
 
-    public int getCameraRotation() {
+    private int getCameraRotation() {
         return rotation;
     }
 
@@ -76,32 +57,29 @@ public class Camera1Control implements ICameraControl {
     }
 
     private void onRequestDetect(byte[] data) {
-        // 相机已经关闭
         if (camera == null || data == null || optSize == null) {
             return;
         }
-
         YuvImage img = new YuvImage(data, ImageFormat.NV21, optSize.width, optSize.height, null);
         ByteArrayOutputStream os = null;
         try {
             os = new ByteArrayOutputStream(data.length);
             img.compressToJpeg(new Rect(0, 0, optSize.width, optSize.height), 80, os);
             byte[] jpeg = os.toByteArray();
-        int status = detectCallback.onDetect(jpeg, getCameraRotation());
-
-        if (status == 0) {
-            clearPreviewCallback();
-        }
+            int status = detectCallback.onDetect(jpeg, getCameraRotation());
+            if (status == 0) {
+                clearPreviewCallback();
+            }
         } catch (OutOfMemoryError e) {
-            // 内存溢出则取消当次操作
+            e.printStackTrace();
         } finally {
             try {
+                assert os != null;
                 os.close();
             } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     @Override
@@ -123,17 +101,11 @@ public class Camera1Control implements ICameraControl {
         previewView.requestLayout();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void refreshPermission() {
         startPreview(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setFlashMode(@FlashMode int flashMode) {
         if (this.flashMode == flashMode) {
@@ -158,7 +130,6 @@ public class Camera1Control implements ICameraControl {
         if (camera != null) {
             camera.setPreviewCallback(null);
             stopPreview();
-            // 避免同步代码，为了先设置null后release
             Camera tempC = camera;
             camera = null;
             tempC.release();
@@ -221,25 +192,17 @@ public class Camera1Control implements ICameraControl {
             camera.setParameters(parameters);
             takingPicture.set(true);
             cancelAutoFocus();
-            CameraThreadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    camera.takePicture(null, null, new Camera.PictureCallback() {
-                        @Override
-                        public void onPictureTaken(byte[] data, Camera camera) {
-                            startPreview(false);
-                            takingPicture.set(false);
-                            if (onTakePictureCallback != null) {
-                                onTakePictureCallback.onPictureTaken(data);
-                            }
-                        }
-                    });
+            CameraThreadPool.execute(() -> camera.takePicture(null, null, (data, camera) -> {
+                startPreview(false);
+                takingPicture.set(false);
+                if (onTakePictureCallback != null) {
+                    onTakePictureCallback.onPictureTaken(data);
                 }
-            });
+            }));
 
         } catch (RuntimeException e) {
             e.printStackTrace();
-            startPreview(false);;
+            startPreview(false);
             takingPicture.set(false);
         }
     }
@@ -249,7 +212,7 @@ public class Camera1Control implements ICameraControl {
         this.permissionCallback = callback;
     }
 
-    public Camera1Control(Context context) {
+    Camera1Control(Context context) {
         this.context = context;
         previewView = new PreviewView(context);
         openCamera();
@@ -268,7 +231,6 @@ public class Camera1Control implements ICameraControl {
     }
 
     private SurfaceTexture surfaceCache;
-
     private byte[] buffer = null;
 
     private void setPreviewCallbackImpl() {
@@ -289,34 +251,23 @@ public class Camera1Control implements ICameraControl {
         }
     }
 
-    Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
+    private Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(final byte[] data, Camera camera) {
-            // 扫描成功阻止打开新线程处理
             if (abortingScan.get()) {
                 return;
             }
-            // 节流
             if (previewFrameCount++ % 5 != 0) {
                 return;
             }
-
-            // 在某些机型和某项项目中，某些帧的data的数据不符合nv21的格式，需要过滤，否则后续处理会导致crash
-            if (data.length != parameters.getPreviewSize().width * parameters.getPreviewSize().height * 1.5) {
+            if (data.length != parameters.getPreviewSize().width * parameters.getPreviewSize()
+                    .height * 1.5) {
                 return;
             }
-
             camera.addCallbackBuffer(buffer);
-
-            CameraThreadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Camera1Control.this.onRequestDetect(data);
-                }
-            });
+            CameraThreadPool.execute(() -> Camera1Control.this.onRequestDetect(data));
         }
     };
-
 
     private void initCamera() {
         try {
@@ -335,7 +286,6 @@ public class Camera1Control implements ICameraControl {
                     startPreview(true);
                     return;
                 }
-
             }
             if (parameters == null) {
                 parameters = camera.getParameters();
@@ -350,7 +300,8 @@ public class Camera1Control implements ICameraControl {
         }
     }
 
-    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
+    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView
+            .SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             surfaceCache = surface;
@@ -375,7 +326,6 @@ public class Camera1Control implements ICameraControl {
         }
     };
 
-    // 开启预览
     private void startPreview(boolean checkPermission) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -398,20 +348,14 @@ public class Camera1Control implements ICameraControl {
     }
 
     private void startAutoFocus() {
-        CameraThreadPool.createAutoFocusTimerTask(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (Camera1Control.this) {
-                    if (camera != null && !takingPicture.get()) {
-                        try {
-                            camera.autoFocus(new Camera.AutoFocusCallback() {
-                                @Override
-                                public void onAutoFocus(boolean success, Camera camera) {
-                                }
-                            });
-                        } catch (Throwable e) {
-                            // startPreview是异步实现，可能在某些机器上前几次调用会autofocus failß
-                        }
+        CameraThreadPool.createAutoFocusTimerTask(() -> {
+            synchronized (Camera1Control.this) {
+                if (camera != null && !takingPicture.get()) {
+                    try {
+                        camera.autoFocus((success, camera) -> {
+                        });
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -419,19 +363,16 @@ public class Camera1Control implements ICameraControl {
     }
 
     private void opPreviewSize(int width, @SuppressWarnings("unused") int height) {
-
         if (parameters != null && camera != null && width > 0) {
             optSize = getOptimalSize(camera.getParameters().getSupportedPreviewSizes());
             parameters.setPreviewSize(optSize.width, optSize.height);
             previewView.setRatio(1.0f * optSize.width / optSize.height);
-
             camera.setDisplayOrientation(getSurfaceOrientation());
             stopPreview();
             try {
                 camera.setParameters(parameters);
             } catch (RuntimeException e) {
                 e.printStackTrace();
-
             }
         }
     }
@@ -440,37 +381,29 @@ public class Camera1Control implements ICameraControl {
         int width = previewView.textureView.getWidth();
         int height = previewView.textureView.getHeight();
         Camera.Size pictureSize = sizes.get(0);
-
         List<Camera.Size> candidates = new ArrayList<>();
-
         for (Camera.Size size : sizes) {
-            if (size.width >= width && size.height >= height && size.width * height == size.height * width) {
-                // 比例相同
+            if (size.width >= width && size.height >= height && size.width * height == size
+                    .height * width) {
                 candidates.add(size);
-            } else if (size.height >= width && size.width >= height && size.width * width == size.height * height) {
-                // 反比例
+            } else if (size.height >= width && size.width >= height && size.width * width == size
+                    .height * height) {
                 candidates.add(size);
             }
         }
         if (!candidates.isEmpty()) {
             return Collections.min(candidates, sizeComparator);
         }
-
         for (Camera.Size size : sizes) {
             if (size.width > width && size.height > height) {
                 return size;
             }
         }
-
         return pictureSize;
     }
 
-    private Comparator<Camera.Size> sizeComparator = new Comparator<Camera.Size>() {
-        @Override
-        public int compare(Camera.Size lhs, Camera.Size rhs) {
-            return Long.signum((long) lhs.width * lhs.height - (long) rhs.width * rhs.height);
-        }
-    };
+    private Comparator<Camera.Size> sizeComparator = (lhs, rhs) -> Long.signum((long) lhs.width *
+            lhs.height - (long) rhs.width * rhs.height);
 
     private void updateFlashMode(int flashMode) {
         switch (flashMode) {
@@ -505,15 +438,8 @@ public class Camera1Control implements ICameraControl {
         }
     }
 
-    /**
-     * 有些相机匹配不到完美的比例。比如。我们的layout是4:3的。预览只有16:9
-     * 的，如果直接显示图片会拉伸，变形。缩放的话，又有黑边。所以我们采取的策略
-     * 是，等比例放大。这样预览的有一部分会超出屏幕。拍照后再进行裁剪处理。
-     */
     private class PreviewView extends FrameLayout {
-
         private TextureView textureView;
-
         private float ratio = 0.75f;
 
         void setTextureView(TextureView textureView) {
@@ -542,16 +468,12 @@ public class Camera1Control implements ICameraControl {
             int width = w;
             int height = h;
             if (w < h) {
-                // 垂直模式，高度固定。
                 height = (int) (width * ratio);
             } else {
-                // 水平模式，宽度固定。
                 width = (int) (height * ratio);
             }
-
             int l = (getWidth() - width) / 2;
             int t = (getHeight() - height) / 2;
-
             previewFrame.left = l;
             previewFrame.top = t;
             previewFrame.right = l + width;
@@ -561,7 +483,8 @@ public class Camera1Control implements ICameraControl {
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
             super.onLayout(changed, left, top, right, bottom);
-            textureView.layout(previewFrame.left, previewFrame.top, previewFrame.right, previewFrame.bottom);
+            textureView.layout(previewFrame.left, previewFrame.top, previewFrame.right,
+                    previewFrame.bottom);
         }
     }
 

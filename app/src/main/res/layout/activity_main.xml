@@ -1,20 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tv"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="增值税发票" />
+        android:background="@android:drawable/bottom_bar"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="增值税发票"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/tv1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="通用票据" />
+        android:layout_marginTop="16dp"
+        android:background="@android:drawable/bottom_bar"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="通用票据"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tv2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@android:drawable/bottom_bar"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="火车票"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tv3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@android:drawable/bottom_bar"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="打车票"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
 </LinearLayout>

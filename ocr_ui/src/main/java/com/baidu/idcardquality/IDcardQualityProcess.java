@@ -1,6 +1,3 @@
-/*
- * Copyright (C) 2017 Baidu, Inc. All Rights Reserved.
- */
 package com.baidu.idcardquality;
 
 import android.content.res.AssetManager;
@@ -14,21 +11,19 @@ import com.baidu.idl.util.UIThread;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class IDcardQualityProcess {
-    final ReentrantReadWriteLock nativeModelLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock nativeModelLock = new ReentrantReadWriteLock();
     private static IDcardQualityProcess mInstance;
-    private static String tokenString;
     private static int mAuthorityStatus;
     private static Throwable loadNativeException = null;
     private static volatile boolean hasReleased;
 
-    public IDcardQualityProcess() {
+    private IDcardQualityProcess() {
     }
 
     public static synchronized IDcardQualityProcess getInstance() {
         if (null == mInstance) {
             mInstance = new IDcardQualityProcess();
         }
-
         return mInstance;
     }
 
@@ -40,18 +35,16 @@ public class IDcardQualityProcess {
 
     public native int idcardQualityProcess(byte[] var1, int var2, int var3, boolean var4, int var5);
 
-    public static synchronized int init(String token) throws AlgorithmOnMainThreadException, IDLAuthorityException {
+    public static synchronized int init(String token) throws AlgorithmOnMainThreadException,
+            IDLAuthorityException {
         if (UIThread.isUITread()) {
             throw new AlgorithmOnMainThreadException();
         } else {
-            tokenString = token;
-
             try {
-                mAuthorityStatus = License.getInstance().init(tokenString);
+                mAuthorityStatus = License.getInstance().init(token);
             } catch (Exception var2) {
                 var2.printStackTrace();
             }
-
             return mAuthorityStatus;
         }
     }
@@ -68,15 +61,12 @@ public class IDcardQualityProcess {
         }
     }
 
-    public int idcardQualityRelease() {
+    private void idcardQualityRelease() {
         if (mAuthorityStatus == 0) {
             hasReleased = true;
             nativeModelLock.writeLock().lock();
             this.idcardQualityCaptchaRelease();
             nativeModelLock.writeLock().unlock();
-            return 0;
-        } else {
-            return mAuthorityStatus;
         }
     }
 
@@ -102,13 +92,12 @@ public class IDcardQualityProcess {
         return loadNativeException;
     }
 
-    public byte[] getRGBImageData(Bitmap img) {
+    private byte[] getRGBImageData(Bitmap img) {
         int imgWidth = img.getWidth();
         int imgHeight = img.getHeight();
         int[] pixels = new int[imgWidth * imgHeight];
         img.getPixels(pixels, 0, imgWidth, 0, 0, imgWidth, imgHeight);
-        byte[] imageData = convertRGBImage(pixels, imgWidth, imgHeight);
-        return imageData;
+        return convertRGBImage(pixels, imgWidth, imgHeight);
     }
 
     public void releaseModel() {
