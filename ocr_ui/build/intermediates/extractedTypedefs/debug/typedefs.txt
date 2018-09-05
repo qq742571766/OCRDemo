@@ -1,0 +1,2 @@
+D com/baidu/ocr/ui/camera/CameraView$Orientation
+D com/baidu/ocr/ui/camera/MaskView$MaskType
