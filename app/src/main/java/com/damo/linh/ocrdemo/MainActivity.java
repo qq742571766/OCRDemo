@@ -53,16 +53,16 @@ public class MainActivity extends AppCompatActivity {
                     .CONTENT_TYPE_GENERAL);
             startActivityForResult(intent, 124);
         });
-        findViewById(R.id.tv1).setOnClickListener(view -> {
-            if (checkTokenStatus()) {
-                return;
-            }
-            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-            ).getAbsolutePath());
-            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_GENERAL);
-            startActivityForResult(intent, 123);
-        });
+//        findViewById(R.id.tv1).setOnClickListener(view -> {
+//            if (checkTokenStatus()) {
+//                return;
+//            }
+//            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+//            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
+//            ).getAbsolutePath());
+//            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_GENERAL);
+//            startActivityForResult(intent, 123);
+//        });
         findViewById(R.id.tv2).setOnClickListener(view -> {
             if (checkTokenStatus()) {
                 return;
