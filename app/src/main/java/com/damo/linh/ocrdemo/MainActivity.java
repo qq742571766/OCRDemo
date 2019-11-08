@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.baidu.ocr.sdk.OCR;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         alertDialog = new AlertDialog.Builder(this);
-        //用明文ak，sk初始化
+        //用明文ak,sk初始化
         OCR.getInstance(this).initAccessTokenWithAkSk(new OnResultListener<AccessToken>() {
             @Override
             public void onResult(AccessToken result) {
@@ -39,133 +40,96 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(OCRError error) {
                 error.printStackTrace();
-                alertText("AK，SK方式获取token失败", error.getMessage());
+                alertText("AK,SK方式获取token失败", error.getMessage());
             }
         }, getApplicationContext(), "KgLmVS7vuicGcX8The7eLpVS", "g7jkbcLqxze3qtYKnvjuPfPQZhPGzyuT");
-        findViewById(R.id.tv).setOnClickListener(view -> {
-            if (checkTokenStatus()) {
-                return;
+        findViewById(R.id.tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkTokenStatus()) {
+                    return;
+                }
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()).getAbsolutePath());
+                intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_GENERAL);
+                startActivityForResult(intent, 111);
             }
-            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-            ).getAbsolutePath());
-            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
-                    .CONTENT_TYPE_GENERAL);
-            startActivityForResult(intent, 124);
         });
-//        findViewById(R.id.tv1).setOnClickListener(view -> {
-//            if (checkTokenStatus()) {
-//                return;
-//            }
-//            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-//            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-//            ).getAbsolutePath());
-//            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_GENERAL);
-//            startActivityForResult(intent, 123);
-//        });
-        findViewById(R.id.tv2).setOnClickListener(view -> {
-            if (checkTokenStatus()) {
-                return;
+        findViewById(R.id.tv1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkTokenStatus()) {
+                    return;
+                }
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()).getAbsolutePath());
+                intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_GENERAL);
+                startActivityForResult(intent, 222);
             }
-            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-            ).getAbsolutePath());
-            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
-                    .CONTENT_TYPE_GENERAL);
-            startActivityForResult(intent, 122);
         });
-        findViewById(R.id.tv3).setOnClickListener(view -> {
-            if (checkTokenStatus()) {
-                return;
+        findViewById(R.id.tv2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkTokenStatus()) {
+                    return;
+                }
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()).getAbsolutePath());
+                intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_GENERAL);
+                startActivityForResult(intent, 333);
             }
-            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-            intent.putExtra(CameraActivity.KEY_OUTPUT_FILE_PATH, getSaveFile(getApplication()
-            ).getAbsolutePath());
-            intent.putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity
-                    .CONTENT_TYPE_GENERAL);
-            startActivityForResult(intent, 121);
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // 识别成功回调，增值税发票
-        if (requestCode == 124 && resultCode == Activity.RESULT_OK) {
+        // 识别成功回调,身份证
+        if (requestCode == 111 && resultCode == Activity.RESULT_OK) {
             OcrRequestParams param = new OcrRequestParams();
             File file = new File(getApplicationContext().getFilesDir(), "pic.jpg");
             param.setImageFile(new File(file.getAbsolutePath()));
-            OCR.getInstance(this).recognizeVatInvoice(param, new
-                    OnResultListener<OcrResponseResult>() {
-                        @Override
-                        public void onResult(OcrResponseResult result) {
-                            alertText("", result.getJsonRes());
-                        }
-
-                        @Override
-                        public void onError(OCRError error) {
-                            alertText("", error.toString());
-                            Log.e("TAG", "onError: " + error.toString());
-                        }
-                    });
-        }
-        // 识别成功回调，通用票据识别
-        if (requestCode == 123 && resultCode == Activity.RESULT_OK) {
-            OcrRequestParams param = new OcrRequestParams();
-            File file = new File(getApplicationContext().getFilesDir(), "pic.jpg");
-            param.setImageFile(new File(file.getAbsolutePath()));
+            // front:身份证含照片的一面;back:身份证带国徽的一面
+            param.putParam("id_card_side", "front");
+            // 是否检测图像旋转角度,默认检测,即:true.朝向是指输入图像是正常方向,逆时针旋转90/180/270度.可选值包括:true:检测旋转角度; false:不检测旋转角度.
             param.putParam("detect_direction", "true");
-            OCR.getInstance(this).recognizeReceipt(param, new
-                    OnResultListener<OcrResponseResult>() {
-                        @Override
-                        public void onResult(OcrResponseResult result) {
-                            alertText("", result.getJsonRes());
-                        }
+            // 是否开启身份证风险类型(身份证复印件,临时身份证,身份证翻拍,修改过的身份证)功能,默认不开启,即:false.可选值:true 开启;false 不开启
+            param.putParam("detect_risk", "false");
+            // 是否检测头像内容,默认不检测.可选值:true 检测头像并返回头像的 base64 编码及位置信息
+            param.putParam("detect_photo", "false");
+            OCR.getInstance(this).recognizeCommon(param, new OnResultListener<OcrResponseResult>() {
+                @Override
+                public void onResult(OcrResponseResult result) {
+                    alertText("", result.getJsonRes());
+                }
 
-                        @Override
-                        public void onError(OCRError error) {
-                            alertText("", error.toString());
-                            Log.e("TAG", "onError: " + error.toString());
-                        }
-                    });
+                @Override
+                public void onError(OCRError error) {
+                    alertText("", error.toString());
+                    Log.e("TAG", "onError:" + error.toString());
+                }
+            }, "https://aip.baidubce.com/rest/2.0/ocr/v1/idcard?");
         }
-        // 识别成功回调，火车票据识别
-        if (requestCode == 122 && resultCode == Activity.RESULT_OK) {
+        // 识别成功回调,银行卡
+        if (requestCode == 222 && resultCode == Activity.RESULT_OK) {
             OcrRequestParams param = new OcrRequestParams();
             File file = new File(getApplicationContext().getFilesDir(), "pic.jpg");
             param.setImageFile(new File(file.getAbsolutePath()));
-            OCR.getInstance(this).recognizeCommon(param, new
-                    OnResultListener<OcrResponseResult>() {
-                        @Override
-                        public void onResult(OcrResponseResult result) {
-                            alertText("", result.getJsonRes());
-                        }
+            OCR.getInstance(this).recognizeCommon(param, new OnResultListener<OcrResponseResult>() {
+                @Override
+                public void onResult(OcrResponseResult result) {
+                    alertText("", result.getJsonRes());
+                }
 
-                        @Override
-                        public void onError(OCRError error) {
-                            alertText("", error.toString());
-                            Log.e("TAG", "onError: " + error.toString());
-                        }
-                    },"https://aip.baidubce.com/rest/2.0/ocr/v1/train_ticket?");
+                @Override
+                public void onError(OCRError error) {
+                    alertText("", error.toString());
+                    Log.e("TAG", "onError:" + error.toString());
+                }
+            }, "https://aip.baidubce.com/rest/2.0/ocr/v1/bankcard?");
         }
-        // 识别成功回调，打车票据识别
-        if (requestCode == 121 && resultCode == Activity.RESULT_OK) {
-            OcrRequestParams param = new OcrRequestParams();
-            File file = new File(getApplicationContext().getFilesDir(), "pic.jpg");
-            param.setImageFile(new File(file.getAbsolutePath()));
-            OCR.getInstance(this).recognizeCommon(param, new
-                    OnResultListener<OcrResponseResult>() {
-                        @Override
-                        public void onResult(OcrResponseResult result) {
-                            alertText("", result.getJsonRes());
-                        }
-
-                        @Override
-                        public void onError(OCRError error) {
-                            alertText("", error.toString());
-                            Log.e("TAG", "onError: " + error.toString());
-                        }
-                    },"https://aip.baidubce.com/rest/2.0/ocr/v1/taxi_receipt?");
+        // 识别成功回调,自定义票据
+        if (requestCode == 333 && resultCode == Activity.RESULT_OK) {
         }
     }
 
@@ -181,9 +145,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void alertText(final String title, final String message) {
-        this.runOnUiThread(() -> alertDialog.setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("确定", null)
-                .show());
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                alertDialog.setTitle(title).setMessage(message).setPositiveButton("确定", null).show();
+            }
+        });
     }
 }

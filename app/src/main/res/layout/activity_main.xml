@@ -10,50 +10,38 @@
         android:id="@+id/tv"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
         android:layout_gravity="center"
+        android:layout_marginTop="48dp"
         android:background="@drawable/ic_y"
         android:gravity="center"
         android:padding="16dp"
-        android:text="增值税发票"
+        android:text="身份证"
         android:textColor="@android:color/black"
         android:textSize="24sp" />
 
-    <!--<TextView-->
-    <!--android:id="@+id/tv1"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginTop="16dp"-->
-    <!--android:background="@drawable/ic_y"-->
-    <!--android:gravity="center"-->
-    <!--android:padding="16dp"-->
-    <!--android:text="通用票据"-->
-    <!--android:textColor="@android:color/black"-->
-    <!--android:textSize="24sp" />-->
+    <TextView
+        android:id="@+id/tv1"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="48dp"
+        android:background="@drawable/ic_y"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="银行卡"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/tv2"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
         android:layout_gravity="center"
+        android:layout_marginTop="48dp"
         android:background="@drawable/ic_y"
         android:gravity="center"
         android:padding="16dp"
-        android:text="火车票"
-        android:textColor="@android:color/black"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/tv3"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:layout_gravity="center"
-        android:background="@drawable/ic_y"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="打车票"
+        android:text="自定义票据"
         android:textColor="@android:color/black"
         android:textSize="24sp" />
 </LinearLayout>
